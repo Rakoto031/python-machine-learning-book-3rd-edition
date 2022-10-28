@@ -59,8 +59,7 @@ def train_input_fn():
 def eval_input_fn():
     datasets = tfds.load(name='mnist')
     mnist_test = datasets['test']
-    dataset = mnist_test.map(preprocess).batch(BATCH_SIZE)
-    return dataset
+    return mnist_test.map(preprocess).batch(BATCH_SIZE)
 
 
 
@@ -143,7 +142,7 @@ features = [
     tf.feature_column.numeric_column(
         key='input-features:', shape=(2,))
 ]
-    
+
 features
 
 

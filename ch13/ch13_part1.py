@@ -259,7 +259,7 @@ for item in ds:
 ds_batch = ds.batch(3)
 
 for i, elem in enumerate(ds_batch, 1):
-    print('batch {}:'.format(i), elem.numpy())
+    print(f'batch {i}:', elem.numpy())
 
 
 # ### Combining two tensors into a joint dataset
@@ -276,7 +276,7 @@ t_y = tf.range(4)
 
 ds_x = tf.data.Dataset.from_tensor_slices(t_x)
 ds_y = tf.data.Dataset.from_tensor_slices(t_y)
-    
+
 ds_joint = tf.data.Dataset.zip((ds_x, ds_y))
 
 for example in ds_joint:
@@ -412,7 +412,7 @@ for i,file in enumerate(file_list):
     ax.set_xticks([]); ax.set_yticks([])
     ax.imshow(img)
     ax.set_title(os.path.basename(file), size=15)
-    
+
 # plt.savefig('ch13-catdot-examples.pdf')
 plt.tight_layout()
 plt.show()
@@ -452,11 +452,11 @@ fig = plt.figure(figsize=(10, 5))
 for i,example in enumerate(ds_images_labels):
     print(example[0].shape, example[1].numpy())
     ax = fig.add_subplot(2, 3, i+1)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     ax.imshow(example[0])
-    ax.set_title('{}'.format(example[1].numpy()), 
-                 size=15)
-    
+    ax.set_title(f'{example[1].numpy()}', size=15)
+
 plt.tight_layout()
 #plt.savefig('ch13-catdog-dataset.pdf')
 plt.show()
@@ -542,10 +542,11 @@ print(images.shape, labels)
 fig = plt.figure(figsize=(12, 8))
 for i,(image,label) in enumerate(zip(images, labels)):
     ax = fig.add_subplot(3, 6, i+1)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     ax.imshow(image)
-    ax.set_title('{}'.format(label), size=15)
-    
+    ax.set_title(f'{label}', size=15)
+        
 
 plt.show()
 
@@ -578,10 +579,11 @@ print(batch[0].shape, batch[1])
 fig = plt.figure(figsize=(15, 6))
 for i,(image,label) in enumerate(zip(batch[0], batch[1])):
     ax = fig.add_subplot(2, 5, i+1)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     ax.imshow(image[:, :, 0], cmap='gray_r')
-    ax.set_title('{}'.format(label), size=15)
-    
+    ax.set_title(f'{label}', size=15)
+
 plt.show()
 
 

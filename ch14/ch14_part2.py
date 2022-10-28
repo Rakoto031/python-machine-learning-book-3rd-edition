@@ -96,7 +96,7 @@ for col_name in numeric_column_names:
     std  = train_stats.loc[col_name, 'std']
     df_train_norm.loc[:, col_name] = (df_train_norm.loc[:, col_name] - mean)/std
     df_test_norm.loc[:, col_name] = (df_test_norm.loc[:, col_name] - mean)/std
-    
+
 df_train_norm.tail()
 
 
@@ -104,11 +104,12 @@ df_train_norm.tail()
 
 
 
-numeric_features = []
+numeric_features = [
+    tf.feature_column.numeric_column(key=col_name)
+    for col_name in numeric_column_names
+]
 
-for col_name in numeric_column_names:
-    numeric_features.append(tf.feature_column.numeric_column(key=col_name))
-    
+
 numeric_features
 
 
@@ -116,11 +117,12 @@ numeric_features
 
 feature_year = tf.feature_column.numeric_column(key="ModelYear")
 
-bucketized_features = []
+bucketized_features = [
+    tf.feature_column.bucketized_column(
+        source_column=feature_year, boundaries=[73, 76, 79]
+    )
+]
 
-bucketized_features.append(tf.feature_column.bucketized_column(
-    source_column=feature_year,
-    boundaries=[73, 76, 79]))
 
 print(bucketized_features)
 
@@ -131,8 +133,9 @@ feature_origin = tf.feature_column.categorical_column_with_vocabulary_list(
     key='Origin',
     vocabulary_list=[1, 2, 3])
 
-categorical_indicator_features = []
-categorical_indicator_features.append(tf.feature_column.indicator_column(feature_origin))
+categorical_indicator_features = [
+    tf.feature_column.indicator_column(feature_origin)
+]
 
 print(categorical_indicator_features)
 

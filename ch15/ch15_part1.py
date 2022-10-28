@@ -80,10 +80,11 @@ def conv1d(x, w, p=0, s=1):
         zero_pad = np.zeros(shape=p)
         x_padded = np.concatenate(
             [zero_pad, x_padded, zero_pad])
-    res = []
-    for i in range(0, int((len(x_padded) - len(w_rot)) / s) + 1, s):
-        res.append(np.sum(
-            x_padded[i:i+w_rot.shape[0]] * w_rot))
+    res = [
+        np.sum(x_padded[i : i + w_rot.shape[0]] * w_rot)
+        for i in range(0, int((len(x_padded) - len(w_rot)) / s) + 1, s)
+    ]
+
     return np.array(res)
 
 
@@ -278,7 +279,7 @@ if Version(tf.__version__) >= '2.3.0':
         cce_probas(y_true=[[0, 0, 1]], y_pred=probas)),
         '(w Logits): {:.4f}'.format(
         cce_logits(y_true=[[0, 0, 1]], y_pred=logits)))
-    
+
 else:
     tf.print(
         'CCE (w Probas): {:.4f}'.format(
@@ -385,7 +386,7 @@ model.add(tf.keras.layers.Conv2D(
 
 model.add(tf.keras.layers.MaxPool2D(
     pool_size=(2, 2), name='pool_1'))
-    
+
 model.add(tf.keras.layers.Conv2D(
     filters=64, kernel_size=(5, 5),
     strides=(1, 1), padding='same',
@@ -414,7 +415,7 @@ model.add(tf.keras.layers.Dense(
 
 model.add(tf.keras.layers.Dropout(
     rate=0.5))
-    
+
 model.add(tf.keras.layers.Dense(
     units=10, name='fc_2',
     activation='softmax'))
@@ -485,15 +486,22 @@ print(preds)
 fig = plt.figure(figsize=(12, 4))
 for i in range(12):
     ax = fig.add_subplot(2, 6, i+1)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     img = batch_test[0][i, :, :, 0]
     ax.imshow(img, cmap='gray_r')
-    ax.text(0.9, 0.1, '{}'.format(preds[i]), 
-            size=15, color='blue',
-            horizontalalignment='center',
-            verticalalignment='center', 
-            transform=ax.transAxes)
-    
+    ax.text(
+        0.9,
+        0.1,
+        f'{preds[i]}',
+        size=15,
+        color='blue',
+        horizontalalignment='center',
+        verticalalignment='center',
+        transform=ax.transAxes,
+    )
+
+
 #plt.savefig('figures/15_13.png', dpi=300)
 plt.show()
 

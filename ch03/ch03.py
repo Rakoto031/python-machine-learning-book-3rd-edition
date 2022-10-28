@@ -190,7 +190,7 @@ def plot_decision_regions(X, y, classifier, test_idx=None, resolution=0.02):
         # plot all examples
         X_test, y_test = X[test_idx, :], y[test_idx]
 
-        
+
         if LooseVersion(matplotlib.__version__) < LooseVersion('0.3.4'):
             plt.scatter(X_test[:, 0],
                         X_test[:, 1],
@@ -348,13 +348,13 @@ class LogisticRegressionGD(object):
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
         self.cost_ = []
 
-        for i in range(self.n_iter):
+        for _ in range(self.n_iter):
             net_input = self.net_input(X)
             output = self.activation(net_input)
             errors = (y - output)
             self.w_[1:] += self.eta * X.T.dot(errors)
             self.w_[0] += self.eta * errors.sum()
-            
+
             # note that we compute the logistic `cost` now
             # instead of the sum of squared errors cost
             cost = -y.dot(np.log(output)) - ((1 - y).dot(np.log(1 - output)))
