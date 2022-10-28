@@ -113,17 +113,13 @@ output = rnn_layer(tf.reshape(x_seq, shape=(1, 3, 5)))
 out_man = []
 for t in range(len(x_seq)):
     xt = tf.reshape(x_seq[t], (1, 5))
-    print('Time step {} =>'.format(t))
+    print(f'Time step {t} =>')
     print('   Input           :', xt.numpy())
-    
-    ht = tf.matmul(xt, w_xh) + b_h    
+
+    ht = tf.matmul(xt, w_xh) + b_h
     print('   Hidden          :', ht.numpy())
-    
-    if t>0:
-        prev_o = out_man[t-1]
-    else:
-        prev_o = tf.zeros(shape=(ht.shape))
-        
+
+    prev_o = out_man[t-1] if t>0 else tf.zeros(shape=(ht.shape))
     ot = ht + tf.matmul(prev_o, w_oo)
     ot = tf.math.tanh(ot)
     out_man.append(ot)
@@ -222,7 +218,7 @@ token_counts = Counter()
 for example in ds_raw_train:
     tokens = tokenizer.tokenize(example[0].numpy()[0])
     token_counts.update(tokens)
-    
+
 print('Vocab-size:', len(token_counts))
 
 
@@ -263,7 +259,7 @@ ds_test = ds_raw_test.map(encode_map_fn)
 tf.random.set_seed(1)
 for example in ds_train.shuffle(1000).take(5):
     print('Sequence length:', example[0].shape)
-    
+
 example
 
 
@@ -420,13 +416,13 @@ bi_lstm_model = tf.keras.Sequential([
         input_dim=vocab_size,
         output_dim=embedding_dim,
         name='embed-layer'),
-    
+
     tf.keras.layers.Bidirectional(
         tf.keras.layers.LSTM(64, name='lstm-layer'),
         name='bidir-lstm'), 
 
     tf.keras.layers.Dense(64, activation='relu'),
-    
+
     tf.keras.layers.Dense(1, activation='sigmoid')
 ])
 
@@ -525,42 +521,48 @@ def build_rnn_model(embedding_dim, vocab_size,
 
     # build the model
     model = tf.keras.Sequential()
-    
+
     model.add(
         Embedding(
             input_dim=vocab_size,
             output_dim=embedding_dim,
             name='embed-layer')
     )
-    
+
     for i in range(n_recurrent_layers):
         return_sequences = (i < n_recurrent_layers-1)
-            
+
         if recurrent_type == 'SimpleRNN':
             recurrent_layer = SimpleRNN(
-                units=n_recurrent_units, 
+                units=n_recurrent_units,
                 return_sequences=return_sequences,
-                name='simprnn-layer-{}'.format(i))
+                name=f'simprnn-layer-{i}',
+            )
+
         elif recurrent_type == 'LSTM':
             recurrent_layer = LSTM(
-                units=n_recurrent_units, 
+                units=n_recurrent_units,
                 return_sequences=return_sequences,
-                name='lstm-layer-{}'.format(i))
+                name=f'lstm-layer-{i}',
+            )
+
         elif recurrent_type == 'GRU':
             recurrent_layer = GRU(
-                units=n_recurrent_units, 
+                units=n_recurrent_units,
                 return_sequences=return_sequences,
-                name='gru-layer-{}'.format(i))
-        
+                name=f'gru-layer-{i}',
+            )
+
+
         if bidirectional:
             recurrent_layer = Bidirectional(
                 recurrent_layer, name='bidir-'+recurrent_layer.name)
-            
+
         model.add(recurrent_layer)
 
     model.add(tf.keras.layers.Dense(64, activation='relu'))
     model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
-    
+
     return model
 
 

@@ -486,7 +486,7 @@ lr.coef_
 
 fig = plt.figure()
 ax = plt.subplot(111)
-    
+
 colors = ['blue', 'green', 'red', 'cyan', 
           'magenta', 'yellow', 'black', 
           'pink', 'lightgreen', 'lightblue', 
@@ -537,7 +537,7 @@ class SBS():
         self.random_state = random_state
 
     def fit(self, X, y):
-        
+
         X_train, X_test, y_train, y_test =             train_test_split(X, y, test_size=self.test_size,
                              random_state=self.random_state)
 
@@ -574,8 +574,7 @@ class SBS():
     def _calc_score(self, X_train, y_train, X_test, y_test, indices):
         self.estimator.fit(X_train[:, indices], y_train)
         y_pred = self.estimator.predict(X_test[:, indices])
-        score = self.scoring(y_test, y_pred)
-        return score
+        return self.scoring(y_test, y_pred)
 
 
 

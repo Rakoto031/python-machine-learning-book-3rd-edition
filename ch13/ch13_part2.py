@@ -238,15 +238,11 @@ ds_test = ds_orig.skip(100)
 
 ## checking the number of examples:
 
-n = 0
-for example in ds_train_orig:
-    n += 1
+n = sum(1 for _ in ds_train_orig)
 print(n)
 
 
-n = 0
-for example in ds_test:
-    n += 1
+n = sum(1 for _ in ds_test)
 print(n)
 
 
@@ -351,13 +347,8 @@ print('Test loss: {:.4f}   Test Acc.: {:.4f}'.format(*results))
 
 
 
-labels_train = []
-for i,item in enumerate(ds_train_orig):
-    labels_train.append(item[1].numpy())
-    
-labels_test = []
-for i,item in enumerate(ds_test):
-    labels_test.append(item[1].numpy())
+labels_train = [item[1].numpy() for item in ds_train_orig]
+labels_test = [item[1].numpy() for item in ds_test]
 print('Training Set: ',len(labels_train), 'Test Set: ', len(labels_test))
 
 
@@ -518,14 +509,8 @@ ds_train = ds_train.shuffle(10).repeat(10)
 ds_test = ds_test.shuffle(5)
 ds_test = ds_test.repeat(10)
 
-set_train = set()
-for i,item in enumerate(ds_train):
-    set_train.add(item.numpy())
-
-set_test = set()
-for i,item in enumerate(ds_test):
-    set_test.add(item.numpy())
-
+set_train = {item.numpy() for item in ds_train}
+set_test = {item.numpy() for item in ds_test}
 print(set_train, set_test)
 
 
@@ -543,14 +528,8 @@ ds_train = ds_train.shuffle(10).repeat(10)
 ds_test = ds_test.shuffle(5)
 ds_test = ds_test.repeat(10)
 
-set_train = set()
-for i,item in enumerate(ds_train):
-    set_train.add(item.numpy())
-
-set_test = set()
-for i,item in enumerate(ds_test):
-    set_test.add(item.numpy())
-
+set_train = {item.numpy() for item in ds_train}
+set_test = {item.numpy() for item in ds_test}
 print(set_train, set_test)
 
 
@@ -602,14 +581,9 @@ ds_test = ds_test.map(
 print(next(iter(ds_train_orig)))
 
 
-for j in range(5):
-    labels_train = []
-    for i,item in enumerate(ds_train_orig):
-        labels_train.append(item[1].numpy())
-
-    labels_test = []
-    for i,item in enumerate(ds_test):
-        labels_test.append(item[1].numpy())
+for _ in range(5):
+    labels_train = [item[1].numpy() for item in ds_train_orig]
+    labels_test = [item[1].numpy() for item in ds_test]
     print('Training Set: ',len(labels_train), 'Test Set: ', len(labels_test))
 
     labels_test = np.array(labels_test)

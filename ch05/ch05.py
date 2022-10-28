@@ -647,11 +647,7 @@ def rbf_kernel_pca(X, gamma, n_components):
     eigvals, eigvecs = eigh(K)
     eigvals, eigvecs = eigvals[::-1], eigvecs[:, ::-1]
 
-    # Collect the top k eigenvectors (projected examples)
-    X_pc = np.column_stack([eigvecs[:, i]
-                            for i in range(n_components)])
-
-    return X_pc
+    return np.column_stack([eigvecs[:, i] for i in range(n_components)])
 
 
 

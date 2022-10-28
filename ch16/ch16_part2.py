@@ -45,7 +45,7 @@ import tensorflow as tf
 ## Reading and processing text
 with open('1268-0.txt', 'r') as fp:
     text=fp.read()
-    
+
 start_indx = text.find('THE MYSTERIOUS ISLAND')
 end_indx = text.find('End of the Project Gutenberg')
 print(start_indx, end_indx)
@@ -87,7 +87,7 @@ print(text_encoded[15:21], ' == Reverse  ==> ', ''.join(char_array[text_encoded[
 ds_text_encoded = tf.data.Dataset.from_tensor_slices(text_encoded)
 
 for ex in ds_text_encoded.take(5):
-    print('{} -> {}'.format(ex.numpy(), char_array[ex.numpy()]))
+    print(f'{ex.numpy()} -> {char_array[ex.numpy()]}')
 
 
 
@@ -144,13 +144,13 @@ ds
 
 
 def build_model(vocab_size, embedding_dim, rnn_units):
-    model = tf.keras.Sequential([
-        tf.keras.layers.Embedding(vocab_size, embedding_dim),
-        tf.keras.layers.LSTM(
-            rnn_units, return_sequences=True),
-        tf.keras.layers.Dense(vocab_size)
-    ])
-    return model
+    return tf.keras.Sequential(
+        [
+            tf.keras.layers.Embedding(vocab_size, embedding_dim),
+            tf.keras.layers.LSTM(rnn_units, return_sequences=True),
+            tf.keras.layers.Dense(vocab_size),
+        ]
+    )
 
 
 charset_size = len(char_array)
@@ -216,18 +216,18 @@ def sample(model, starting_str,
     generated_str = starting_str
 
     model.reset_states()
-    for i in range(len_generated_text):
+    for _ in range(len_generated_text):
         logits = model(encoded_input)
         logits = tf.squeeze(logits, 0)
 
         scaled_logits = logits * scale_factor
         new_char_indx = tf.random.categorical(
             scaled_logits, num_samples=1)
-        
+
         new_char_indx = tf.squeeze(new_char_indx)[-1].numpy()    
 
         generated_str += str(char_array[new_char_indx])
-        
+
         new_char_indx = tf.expand_dims([new_char_indx], 0)
         encoded_input = tf.concat(
             [encoded_input, new_char_indx],

@@ -87,7 +87,7 @@ if tf.test.is_gpu_available():
 
 else:
     device_name = 'cpu:0'
-    
+
 print(device_name)
 
 
@@ -114,14 +114,14 @@ def make_generator_network(
         num_hidden_units=100,
         num_output_units=784):
     model = tf.keras.Sequential()
-    for i in range(num_hidden_layers):
+    for _ in range(num_hidden_layers):
         model.add(
             tf.keras.layers.Dense(
                 units=num_hidden_units, 
                 use_bias=False)
             )
         model.add(tf.keras.layers.LeakyReLU())
-        
+
     model.add(tf.keras.layers.Dense(
         units=num_output_units, activation='tanh'))
     return model
@@ -132,11 +132,11 @@ def make_discriminator_network(
         num_hidden_units=100,
         num_output_units=1):
     model = tf.keras.Sequential()
-    for i in range(num_hidden_layers):
+    for _ in range(num_hidden_layers):
         model.add(tf.keras.layers.Dense(units=num_hidden_units))
         model.add(tf.keras.layers.LeakyReLU())
         model.add(tf.keras.layers.Dropout(rate=0.5))
-        
+
     model.add(
         tf.keras.layers.Dense(
             units=num_output_units, 
@@ -202,13 +202,19 @@ mnist_trainset = mnist['train']
 
 print('Before preprocessing:  ')
 example = next(iter(mnist_trainset))['image']
-print('dtype: ', example.dtype, ' Min: {} Max: {}'.format(np.min(example), np.max(example)))
+print(
+    'dtype: ', example.dtype, f' Min: {np.min(example)} Max: {np.max(example)}'
+)
+
 
 mnist_trainset = mnist_trainset.map(preprocess)
 
 print('After preprocessing:  ')
 example = next(iter(mnist_trainset))[0]
-print('dtype: ', example.dtype, ' Min: {} Max: {}'.format(np.min(example), np.max(example)))
+print(
+    'dtype: ', example.dtype, f' Min: {np.min(example)} Max: {np.max(example)}'
+)
+
 
 
 #  * **Step-by-step walk through the data-flow**
@@ -270,13 +276,13 @@ tf.random.set_seed(1)
 np.random.seed(1)
 
 
-if mode_z == 'uniform':
+if mode_z == 'normal':
+    fixed_z = tf.random.normal(
+        shape=(batch_size, z_size))
+elif mode_z == 'uniform':
     fixed_z = tf.random.uniform(
         shape=(batch_size, z_size),
         minval=-1, maxval=1)
-elif mode_z == 'normal':
-    fixed_z = tf.random.normal(
-        shape=(batch_size, z_size))
 
 
 def create_samples(g_model, input_z):
@@ -318,15 +324,14 @@ epoch_samples = []
 start_time = time.time()
 for epoch in range(1, num_epochs+1):
     epoch_losses, epoch_d_vals = [], []
-    for i,(input_z,input_real) in enumerate(mnist_trainset):
-        
+    for input_z, input_real in mnist_trainset:
         ## Compute generator's loss
         with tf.GradientTape() as g_tape:
             g_output = gen_model(input_z)
             d_logits_fake = disc_model(g_output, training=True)
             labels_real = tf.ones_like(d_logits_fake)
             g_loss = loss_fn(y_true=labels_real, y_pred=d_logits_fake)
-            
+
         g_grads = g_tape.gradient(g_loss, gen_model.trainable_variables)
         g_optimizer.apply_gradients(
             grads_and_vars=zip(g_grads, gen_model.trainable_variables))
@@ -336,7 +341,7 @@ for epoch in range(1, num_epochs+1):
             d_logits_real = disc_model(input_real, training=True)
 
             d_labels_real = tf.ones_like(d_logits_real)
-            
+
             d_loss_real = loss_fn(
                 y_true=d_labels_real, y_pred=d_logits_real)
 
@@ -350,18 +355,18 @@ for epoch in range(1, num_epochs+1):
 
         ## Compute the gradients of d_loss
         d_grads = d_tape.gradient(d_loss, disc_model.trainable_variables)
-        
+
         ## Optimization: Apply the gradients
         d_optimizer.apply_gradients(
             grads_and_vars=zip(d_grads, disc_model.trainable_variables))
-                           
+
         epoch_losses.append(
             (g_loss.numpy(), d_loss.numpy(), 
              d_loss_real.numpy(), d_loss_fake.numpy()))
-        
+
         d_probs_real = tf.reduce_mean(tf.sigmoid(d_logits_real))
         d_probs_fake = tf.reduce_mean(tf.sigmoid(d_logits_fake))
-        epoch_d_vals.append((d_probs_real.numpy(), d_probs_fake.numpy()))        
+        epoch_d_vals.append((d_probs_real.numpy(), d_probs_fake.numpy()))
     all_losses.append(epoch_losses)
     all_d_vals.append(epoch_d_vals)
     print(
@@ -454,15 +459,21 @@ for i,e in enumerate(selected_epochs):
         ax.set_yticks([])
         if j == 0:
             ax.text(
-                -0.06, 0.5, 'Epoch {}'.format(e),
-                rotation=90, size=18, color='red',
+                -0.06,
+                0.5,
+                f'Epoch {e}',
+                rotation=90,
+                size=18,
+                color='red',
                 horizontalalignment='right',
-                verticalalignment='center', 
-                transform=ax.transAxes)
-        
+                verticalalignment='center',
+                transform=ax.transAxes,
+            )
+
+
         image = epoch_samples[e-1][j]
         ax.imshow(image, cmap='gray_r')
-    
+
 #plt.savefig('images/ch17-vanila-gan-samples.pdf')
 plt.show()
 

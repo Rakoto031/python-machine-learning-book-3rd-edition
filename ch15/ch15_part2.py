@@ -45,14 +45,11 @@ celeba_valid = celeba['validation']
 celeba_test = celeba['test']
 
 def count_items(ds):
-    n = 0
-    for _ in ds:
-        n += 1
-    return n
+    return sum(1 for _ in ds)
 
-print('Train set:  {}'.format(count_items(celeba_train)))
-print('Validation: {}'.format(count_items(celeba_valid)))
-print('Test set:   {}'.format(count_items(celeba_test)))
+print(f'Train set:  {count_items(celeba_train)}')
+print(f'Validation: {count_items(celeba_valid)}')
+print(f'Test set:   {count_items(celeba_test)}')
 
 
 
@@ -60,8 +57,8 @@ print('Test set:   {}'.format(count_items(celeba_test)))
 celeba_train = celeba_train.take(16000)
 celeba_valid = celeba_valid.take(1000)
 
-print('Train set:  {}'.format(count_items(celeba_train)))
-print('Validation: {}'.format(count_items(celeba_valid)))
+print(f'Train set:  {count_items(celeba_train)}')
+print(f'Validation: {count_items(celeba_valid)}')
 
 
 # ### Image transformation and data augmentation
@@ -69,10 +66,7 @@ print('Validation: {}'.format(count_items(celeba_valid)))
 
 
 ## take 5 examples:
-examples = []
-for example in celeba_train.take(5):
-    examples.append(example['image'])
-
+examples = [example['image'] for example in celeba_train.take(5)]
 fig = plt.figure(figsize=(16, 8.5))
 
 ## Column 1: cropping to a bounding-box
@@ -174,7 +168,7 @@ def preprocess(example, size=(64, 64), mode='train'):
         image_flip = tf.image.random_flip_left_right(
             image_resized)
         return (image_flip/255.0, tf.cast(label, tf.int32))
-    
+
     else:
         image_cropped = tf.image.crop_to_bounding_box(
             image, offset_height=20, offset_width=0,
@@ -203,7 +197,7 @@ for j,example in enumerate(ds):
     ax.set_xticks([])
     ax.set_yticks([])
     ax.imshow(example[0])
-    
+
 #plt.savefig('figures/15_16.png', dpi=300)
 plt.show()
 
@@ -241,16 +235,16 @@ model = tf.keras.Sequential([
         32, (3, 3), padding='same', activation='relu'),
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Dropout(rate=0.5),
-    
+
     tf.keras.layers.Conv2D(
         64, (3, 3), padding='same', activation='relu'),
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Dropout(rate=0.5),
-    
+
     tf.keras.layers.Conv2D(
         128, (3, 3), padding='same', activation='relu'),
     tf.keras.layers.MaxPooling2D((2, 2)),
-    
+
     tf.keras.layers.Conv2D(
         256, (3, 3), padding='same', activation='relu'),
 ])
@@ -373,12 +367,10 @@ probas = probas.numpy().flatten()*100
 fig = plt.figure(figsize=(15, 7))
 for j,example in enumerate(ds):
     ax = fig.add_subplot(2, 5, j+1)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     ax.imshow(example[0])
-    if example[1].numpy() == 1:
-        label='Male'
-    else:
-        label = 'Female'
+    label = 'Male' if example[1].numpy() == 1 else 'Female'
     ax.text(
         0.5, -0.15, 
         'GT: {:s}\nPr(Male)={:.0f}%'.format(label, probas[j]), 
@@ -386,7 +378,7 @@ for j,example in enumerate(ds):
         horizontalalignment='center',
         verticalalignment='center', 
         transform=ax.transAxes)
-    
+
 #plt.savefig('figures/figures-15_19.png', dpi=300)
 plt.show()
 

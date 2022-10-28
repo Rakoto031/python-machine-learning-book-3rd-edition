@@ -53,7 +53,7 @@ class DQNAgent:
         self.model = tf.keras.Sequential()
 
         # Hidden layers
-        for n in range(n_layers - 1):
+        for _ in range(n_layers - 1):
             self.model.add(tf.keras.layers.Dense(
                 units=32, activation='relu'))
             self.model.add(tf.keras.layers.Dense(
@@ -82,14 +82,12 @@ class DQNAgent:
         batch_states, batch_targets = [], []
         for transition in batch_samples:
             s, a, r, next_s, done = transition
-            if done:
-                target = r
-            else:
-                target = (r +
-                          self.gamma * np.amax(
-                            self.model.predict(next_s)[0]
-                            )
-                          )
+            target = (
+                r
+                if done
+                else (r + self.gamma * np.amax(self.model.predict(next_s)[0]))
+            )
+
             target_all = self.model.predict(s)[0]
             target_all[a] = target
             batch_states.append(s.flatten())
@@ -134,7 +132,7 @@ if __name__ == '__main__':
     state = np.reshape(state, [1, agent.state_size])
 
     # Filling up the replay-memory
-    for i in range(init_replay_memory_size):
+    for _ in range(init_replay_memory_size):
         action = agent.choose_action(state)
         next_state, reward, done, _ = env.step(action)
         next_state = np.reshape(next_state, [1, agent.state_size])

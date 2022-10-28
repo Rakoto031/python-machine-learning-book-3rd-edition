@@ -19,54 +19,53 @@ from ignite.contrib.handlers import TensorboardLogger, global_step_from_engine
 
 
 
- 
- 
- 
+
+
+
 image_path = './' 
 torch.manual_seed(1) 
- 
+
 transform = transforms.Compose([ 
     transforms.ToTensor() 
 ]) 
- 
- 
+
+
 mnist_train_dataset = MNIST( 
     root=image_path,  
     train=True,
     transform=transform,  
     download=True
 ) 
- 
+
 mnist_val_dataset = MNIST( 
     root=image_path,  
     train=False,  
     transform=transform,  
     download=False 
 ) 
- 
+
 batch_size = 64
 train_loader = DataLoader( 
     mnist_train_dataset, batch_size, shuffle=True 
 ) 
- 
+
 val_loader = DataLoader( 
     mnist_val_dataset, batch_size, shuffle=False 
 ) 
  
  
 def get_model(image_shape=(1, 28, 28), hidden_units=(32, 16)): 
-    input_size = image_shape[0] * image_shape[1] * image_shape[2] 
+    input_size = image_shape[0] * image_shape[1] * image_shape[2]
     all_layers = [nn.Flatten()]
     for hidden_unit in hidden_units: 
         layer = nn.Linear(input_size, hidden_unit) 
         all_layers.append(layer) 
         all_layers.append(nn.ReLU()) 
         input_size = hidden_unit 
- 
-    all_layers.append(nn.Linear(hidden_units[-1], 10)) 
-    all_layers.append(nn.Softmax(dim=1)) 
-    model = nn.Sequential(*all_layers)
-    return model 
+
+    all_layers.append(nn.Linear(hidden_units[-1], 10))
+    all_layers.append(nn.Softmax(dim=1))
+    return nn.Sequential(*all_layers) 
  
  
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -132,11 +131,11 @@ def log_validation_results():
  
 # We will save in the checkpoint the following:
 to_save = {"model": model, "optimizer": optimizer, "trainer": trainer}
- 
+
 # We will save checkpoints to the local disk
 output_path = "./output"
 save_handler = DiskSaver(dirname=output_path, require_empty=False)
- 
+
 # Set up the handler:
 checkpoint_handler = Checkpoint(
     to_save, save_handler, filename_prefix="training")
@@ -156,7 +155,7 @@ best_model_handler = Checkpoint(
     score_name="accuracy",
     score_function=Checkpoint.get_default_score_fn("accuracy"),
 )
- 
+
 evaluator.add_event_handler(Events.COMPLETED, best_model_handler)
 
 
@@ -164,10 +163,10 @@ evaluator.add_event_handler(Events.COMPLETED, best_model_handler)
 
 
 
- 
- 
+
+
 tb_logger = TensorboardLogger(log_dir=output_path)
- 
+
 # Attach handler to plot trainer's loss every 100 iterations
 tb_logger.attach_output_handler(
     trainer,
@@ -175,7 +174,7 @@ tb_logger.attach_output_handler(
     tag="training",
     output_transform=lambda loss: {"batch_loss": loss},
 )
- 
+
 # Attach handler for plotting both evaluators' metrics after every epoch completes
 tb_logger.attach_output_handler(
     evaluator,
